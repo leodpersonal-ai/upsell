@@ -8,8 +8,14 @@
   <meta name="theme-color" content="#087b75">
   <title>Completa tu kit con VetDosis</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    .urgency-bar { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:6px 12px; width:100%; box-sizing:border-box; padding:12px 16px; background:#c62828; color:#fff; font:600 15px/1.4 system-ui,sans-serif; text-align:center; }
+    .urgency-bar time { font-size:20px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:.06em; white-space:nowrap; }
+    @media(max-width:360px) { .urgency-bar { font-size:13px; padding:10px 12px; } .urgency-bar time { font-size:18px; } }
+  </style>
 </head>
 <body>
+  <div class="urgency-bar" aria-label="Tiempo restante de la oferta"><span>Esta oferta termina en</span><time id="offer-countdown" datetime="PT517S" role="timer">08:37</time></div>
   <div class="purchase"><span aria-hidden="true">✓</span> Gracias por tu compra de los 150 flashcards</div>
   <header class="brand">Vet<span>Dosis</span><span class="brand-note">CALCULADORA VETERINARIA</span></header>
   <main>
@@ -26,5 +32,33 @@
   </main>
   <footer>VetDosis <span>Herramienta de apoyo. Verifica la dosis y las indicaciones antes de su uso clínico.</span></footer>
   <script>document.querySelector('video').addEventListener('error',function(){document.getElementById('video-error').hidden=false;});document.querySelector('video source').addEventListener('error',function(){document.getElementById('video-error').hidden=false;});</script>
+  <script>
+    (function () {
+      'use strict';
+      var duration = 517000;
+      var storageKey = 'vetdosis-offer-deadline-0837-v1';
+      var deadline = Date.now() + duration;
+      try {
+        var stored = Number(sessionStorage.getItem(storageKey));
+        if (Number.isFinite(stored) && stored > 0 && stored <= deadline) {
+          deadline = stored;
+        } else {
+          sessionStorage.setItem(storageKey, String(deadline));
+        }
+      } catch (error) { /* The countdown still works when storage is unavailable. */ }
+      var display = document.getElementById('offer-countdown');
+      var timer;
+      function update() {
+        var remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+        var minutes = Math.floor(remaining / 60);
+        var seconds = remaining % 60;
+        display.textContent = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+        display.setAttribute('datetime', 'PT' + remaining + 'S');
+        if (remaining === 0) clearInterval(timer);
+      }
+      update();
+      if (deadline > Date.now()) timer = setInterval(update, 1000);
+    })();
+  </script>
 </body>
 </html>
